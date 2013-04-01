@@ -8,6 +8,7 @@ import java.security.MessageDigest;
  * Date: 3/20/13
  * Time: 4:47 PM
  */
+@SuppressWarnings("serial")
 class HashFile extends File{
     public HashFile(String pathName) {
         super(pathName);
