@@ -7,9 +7,11 @@ import java.io.File;
  */
 class Engine {
 	private final String startPath;
+	private final SameHashFiles sameHashFiles;
 
 	public Engine(String startPath) {
 		this.startPath = startPath;
+		sameHashFiles = new SameHashFiles();
 	}
 
 	private static void loadFilesCollection(File startDirectory, SameLengthFiles files) {
@@ -28,17 +30,19 @@ class Engine {
 	}
 
 	public void process() {
-		System.out.println(String.format("Path: %s", startPath));		
+		System.out.println(String.format("Path: %s", startPath));
 		SameLengthFiles sameLengthFiles = new SameLengthFiles();
 		loadFilesCollection(new File(startPath), sameLengthFiles);
 		System.out.println("Files processed: " + sameLengthFiles.getFilesCount());
 		System.out.println("sameLengthFiles groups: " + sameLengthFiles.getStorage().size());
-
-		SameHashFiles sameHashFiles = new SameHashFiles();
 		for (Iterable<HashFile> equalLengthFiles : sameLengthFiles.getStorage().values()) {
 			sameHashFiles.parse(equalLengthFiles);
 		}
 		System.out.println("Same Files groups: " + sameHashFiles.getStorage().size());
 		sameHashFiles.print();
+	}
+
+	public void save() {
+		// save sameHashFiles
 	}
 }
