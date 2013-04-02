@@ -14,25 +14,10 @@ class Engine {
 		sameHashFiles = new SameHashFiles();
 	}
 
-	private static void loadFilesCollection(File startDirectory, SameLengthFiles files) {
-		if (startDirectory != null && startDirectory.exists() && startDirectory.isDirectory()) {
-			File[] listFiles = startDirectory.listFiles();
-			if (listFiles != null) {
-				for (File file : listFiles) {
-					if (file.isDirectory()) {
-						loadFilesCollection(file, files);
-					} else {
-						files.add(new HashFile(file.getAbsolutePath()), file.length());
-					}
-				}
-			}
-		}
-	}
-
 	public void process() {
 		System.out.println(String.format("Path: %s", startPath));
 		SameLengthFiles sameLengthFiles = new SameLengthFiles();
-		loadFilesCollection(new File(startPath), sameLengthFiles);
+		sameLengthFiles.loadFilesCollection(new File(startPath));
 		System.out.println("Files processed: " + sameLengthFiles.getFilesCount());
 		System.out.println("sameLengthFiles groups: " + sameLengthFiles.getStorage().size());
 		for (Iterable<HashFile> equalLengthFiles : sameLengthFiles.getStorage().values()) {
