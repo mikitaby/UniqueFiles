@@ -1,13 +1,13 @@
 package FileUnique;
 
 import java.io.File;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-/**
- * User: Mikita_Abramenka Date: 3/19/13 Time: 7:35 PM
- */
 class Engine {
 	private final String startPath;
 	private final SameHashFiles sameHashFiles;
+	private static Logger logger = LogManager.getLogger(Engine.class);
 
 	public Engine(String startPath) {
 		this.startPath = startPath;
@@ -15,16 +15,17 @@ class Engine {
 	}
 
 	public void process() {
-		System.out.println(String.format("Path: %s", startPath));
+		logger.trace(String.format("Path: %s", startPath));
 		SameLengthFiles sameLengthFiles = new SameLengthFiles();
 		sameLengthFiles.loadFilesCollection(new File(startPath));
-		System.out.println("Files processed: " + sameLengthFiles.getFilesCount());
-		System.out.println("sameLengthFiles groups: " + sameLengthFiles.getStorage().size());
+		logger.trace("Files processed: " + sameLengthFiles.getFilesCount());
+		logger.trace("sameLengthFiles groups: " + sameLengthFiles.getStorage().size());
 		for (Iterable<HashFile> equalLengthFiles : sameLengthFiles.getStorage().values()) {
 			sameHashFiles.parse(equalLengthFiles);
 		}
-		System.out.println("Same Files groups: " + sameHashFiles.getStorage().size());
+		logger.trace("Same Files groups: " + sameHashFiles.getStorage().size());
 		sameHashFiles.print();
+		logger.trace("End!");
 	}
 
 	public void save() {
