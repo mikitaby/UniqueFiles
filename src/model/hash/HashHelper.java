@@ -1,18 +1,19 @@
-package FileUnique;
+package model.hash;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
-@SuppressWarnings("serial")
-class HashFile extends File {
-	public HashFile(String pathName) {
-		super(pathName);
-	}
+import model.KeyException;
 
-	public String getHash() throws GetKeyException {
+public class HashHelper {
+
+	public static String getHash(File file) throws KeyException {
 		try {
 			MessageDigest md = MessageDigest.getInstance("MD5");
-			try (FileInputStream fis = new FileInputStream(super.getAbsoluteFile())) {
+			try (FileInputStream fis = new FileInputStream(file)) {
 				byte[] dataBytes = new byte[1024];
 				int nread;
 				while ((nread = fis.read(dataBytes)) != -1) {
@@ -20,8 +21,8 @@ class HashFile extends File {
 				}
 			}
 			return bytesToString(md.digest());
-		} catch (Exception e) {
-			throw new GetKeyException(e);
+		} catch (NoSuchAlgorithmException | IOException e) {
+			throw new KeyException(e);
 		}
 	}
 
