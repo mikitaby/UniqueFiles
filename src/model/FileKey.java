@@ -2,6 +2,7 @@ package model;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -13,22 +14,14 @@ public class FileKey {
 	private static final Logger log = LogManager.getLogger(FileKey.class);
 	private final File file;
 	private String hashSum = "";
-	
 
 	public FileKey(File file) {
 		this.file = file;
 	}
 
-	private String getHashSum() throws KeyException {
-		if (hashSum.isEmpty()) {
-			hashSum = getHash();
-		}
-		return hashSum;
-	}
-
 	@Override
 	public int hashCode() {
-		//XXX: 2gb problem
+		// XXX: 2gb problem
 		return (int) file.length();
 	}
 
@@ -44,20 +37,21 @@ public class FileKey {
 		if (file == null) {
 			if (other.file != null)
 				return false;
-		} else
+		} else {
+			// XXX: bad code
 			try {
-				// XXX: bad code
 				if (!getHashSum().equals(other.getHashSum()))
 					return false;
-			} catch (KeyException e) {
+			} catch (NoSuchAlgorithmException | IOException e) {
 				log.error(e);
 				return false;
 			}
+		}
 		return true;
 	}
 
-	private String getHash() throws KeyException {
-		try {
+	private String getHashSum() throws NoSuchAlgorithmException, FileNotFoundException, IOException {
+		if (hashSum.isEmpty()) {
 			MessageDigest md = MessageDigest.getInstance("MD5");
 			try (FileInputStream fis = new FileInputStream(file)) {
 				byte[] dataBytes = new byte[1024];
@@ -66,10 +60,9 @@ public class FileKey {
 					md.update(dataBytes, 0, nread);
 				}
 			}
-			return bytesToString(md.digest());
-		} catch (NoSuchAlgorithmException | IOException e) {
-			throw new KeyException(e);
+			hashSum = bytesToString(md.digest());
 		}
+		return hashSum;
 	}
 
 	private static String bytesToString(byte[] bytes) {
