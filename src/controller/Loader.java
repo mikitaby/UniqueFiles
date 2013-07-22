@@ -11,12 +11,11 @@ class Loader {
 	private static final Logger log = LogManager.getLogger(Loader.class);
 	
 	public static void main(String[] args) {
-		
-		FolderHelper folderHelper = new FolderHelper("d:\\1\\");
 		log.info("Start analysing...");
-		Collection<List<File>> files = SameFilesEngine.analyse(folderHelper.getListFiles("d:\\1\\"));
+		FolderHelper folderHelper = new FolderHelper("d:\\1\\");
+		Collection<List<File>> files = SameFilesEngine.analyse(folderHelper.getFiles());
 		log.info("Finish analysing");
 		StatHelper.show(files);		
-		//folderHelper.move(files);
+		//new FolderHelper("d:\\1\\").move(files);
 	}
 }

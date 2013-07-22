@@ -14,11 +14,18 @@ import org.apache.logging.log4j.Logger;
 
 public class FolderHelper {
 	private static final Logger log = LogManager.getLogger(FolderHelper.class);
-	
+
 	private final String basePath;
-	
+	private final List<File> files;
+
 	public FolderHelper(final String basePath) {
 		this.basePath = basePath;
+		files = new LinkedList<>();
+	}
+
+	public List<File> getFiles() {
+		scanDirectory(new File(basePath));
+		return files;
 	}
 
 	public void move(final Collection<List<File>> files) {
@@ -44,26 +51,17 @@ public class FolderHelper {
 					needMove = true;
 				}
 			}
-		}		
+		}
 	}
-	
-	public List<File> getListFiles(final String basePath) {
-		List<File> files = new LinkedList<>();
-		if (basePath != null && !basePath.trim().isEmpty()) {
-			File startDir = new File(basePath);
-			if (startDir != null && startDir.exists()) {
-				if (startDir.isDirectory()) {
-					File[] listFiles = startDir.listFiles();
-					if (listFiles != null) {
-						for (File file : listFiles) {
-							files.addAll(getListFiles(file.getAbsolutePath()));
-						}
-					}
-				} else {
-					files.add(startDir);
-				}
+
+	private void scanDirectory(File rootDirectory) {
+		File[] filesInDirectory = rootDirectory.listFiles();
+		for (File file : filesInDirectory) {
+			if (file.isDirectory()) {
+				scanDirectory(file);
+			} else {
+				files.add(file);
 			}
 		}
-		return files;
 	}
 }
