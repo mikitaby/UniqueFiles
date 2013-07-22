@@ -12,17 +12,17 @@ import model.FileKey;
 public class SameFilesEngine {
 
 	public static Collection<List<File>> analyse(List<File> files) {
-		Map<FileKey, List<File>> hm = new HashMap<>();
+		final Map<FileKey, List<File>> storage = new HashMap<>();
 		for (File file : files) {
 			FileKey key = new FileKey(file);
-			if (hm.containsKey(key)) {
-				hm.get(key).add(file);
+			if (storage.containsKey(key)) {
+				storage.get(key).add(file);
 			} else {
 				List<File> sameFiles = new LinkedList<>();
 				sameFiles.add(file);
-				hm.put(key, sameFiles);
+				storage.put(key, sameFiles);
 			}
 		}
-		return hm.values();
+		return storage.values();
 	}
 }
