@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -13,7 +14,7 @@ import org.apache.logging.log4j.Logger;
 public class FileKey {
 	private static final Logger log = LogManager.getLogger(FileKey.class);
 	private final File file;
-	private String hashSum = "";
+	private byte[] hashSum;
 
 	public FileKey(File file) {
 		this.file = file;
@@ -35,41 +36,41 @@ public class FileKey {
 			return false;
 		FileKey other = (FileKey) obj;
 		if (file == null) {
-			if (other.file != null)
-				return false;
+			return other.file == null;
 		} else {
 			// XXX: bad code
 			try {
-				if (!getHashSum().equals(other.getHashSum()))
-					return false;
+				return Arrays.equals(getHashSum(), other.getHashSum());
 			} catch (NoSuchAlgorithmException | IOException e) {
 				log.error(e);
 				return false;
 			}
 		}
-		return true;
 	}
 
-	private String getHashSum() throws NoSuchAlgorithmException, FileNotFoundException, IOException {
-		if (hashSum.isEmpty()) {
-			MessageDigest md = MessageDigest.getInstance("MD5");
-			try (FileInputStream fis = new FileInputStream(file)) {
-				byte[] dataBytes = new byte[1024];
-				int nread;
-				while ((nread = fis.read(dataBytes)) != -1) {
-					md.update(dataBytes, 0, nread);
-				}
-			}
-			hashSum = bytesToString(md.digest());
+	private byte[] getHashSum() throws NoSuchAlgorithmException, FileNotFoundException, IOException {
+		if (hashSum == null) {
+			hashSum = calculateMD5Hash();
 		}
 		return hashSum;
 	}
 
-	private static String bytesToString(byte[] bytes) {
-		StringBuilder sb = new StringBuilder();
-		for (byte aByte : bytes) {
-			sb.append(Integer.toString((aByte & 0xff) + 0x100, 16).substring(1));
+	private byte[] calculateMD5Hash() throws NoSuchAlgorithmException, IOException, FileNotFoundException {
+		MessageDigest md = MessageDigest.getInstance("MD5");
+		try (FileInputStream fis = new FileInputStream(file)) {
+			byte[] dataBytes = new byte[1024];
+			int nread;
+			while ((nread = fis.read(dataBytes)) != -1) {
+				md.update(dataBytes, 0, nread);
+			}
 		}
-		return sb.toString();
+		return md.digest();
 	}
+
+	/*
+	 * private static String bytesToString(byte[] bytes) { StringBuilder sb =
+	 * new StringBuilder(); for (byte aByte : bytes) {
+	 * sb.append(Integer.toString((aByte & 0xff) + 0x100, 16).substring(1)); }
+	 * return sb.toString(); }
+	 */
 }
