@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -16,51 +15,53 @@ public class FolderHelper {
 	private static final Logger log = LogManager.getLogger(FolderHelper.class);
 
 	private final String basePath;
-	private final List<File> files;
 
 	public FolderHelper(final String basePath) {
-		this.basePath = basePath;
-		files = new LinkedList<>();
+		this.basePath = basePath;		
 	}
 
 	public List<File> getFiles() {
-		scanDirectory(new File(basePath));
+		final List<File> files = new LinkedList<>();
+		scanDirectory(new File(basePath), files);
 		return files;
 	}
 
-	public void move(final Collection<List<File>> files) {
-		for (List<File> sameFiles : files) {
-			if (sameFiles.size() > 1) {
-				boolean needMove = false;
-				for (File file : sameFiles) {
-					if (needMove) {
-						Path target = Paths.get(file.getAbsolutePath().replace(basePath, basePath + "tmpDouble" + File.separator));
-						try {
-							Path tmpFolder = target.getParent();
-							if (!Files.exists(tmpFolder)) {
-								Files.createDirectories(tmpFolder);
-							}
-							Files.move(Paths.get(file.getAbsolutePath()), target);
-							if (file.getParentFile().listFiles().length == 0) {
-								file.getParentFile().delete();
-							}
-						} catch (IOException e) {
-							log.error(e);
-						}
-					}
-					needMove = true;
+	public void moveExceptFirst(final List<File> files) {
+		if (files != null && files.size() > 1) {
+			boolean isFirst = true;
+			for (File file : files) {
+				if (!isFirst) {
+					moveIntoTempFolder(file);
 				}
+				isFirst = false;
 			}
 		}
 	}
 
-	private void scanDirectory(File rootDirectory) {
-		File[] filesInDirectory = rootDirectory.listFiles();
+	private void moveIntoTempFolder(final File file) {
+		Path target = Paths.get(file.getAbsolutePath().replace(basePath, basePath + "tmpDouble" + File.separator));
+		try {
+			Files.createDirectories(target.getParent());
+			Files.move(Paths.get(file.getAbsolutePath()), target);
+			dropEmptyFolder(file.getParentFile());
+		} catch (IOException e) {
+			log.error(e);
+		}
+	}
+
+	private static void dropEmptyFolder(final File folder) {
+		if (folder.isDirectory() && folder.listFiles().length == 0) {
+			folder.delete();
+		}
+	}
+
+	private static void scanDirectory(final File rootDirectory, final List<File> storage) {
+		final File[] filesInDirectory = rootDirectory.listFiles();
 		for (File file : filesInDirectory) {
 			if (file.isDirectory()) {
-				scanDirectory(file);
+				scanDirectory(file, storage);
 			} else {
-				files.add(file);
+				storage.add(file);
 			}
 		}
 	}

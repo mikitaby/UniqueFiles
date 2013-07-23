@@ -16,6 +16,9 @@ class Loader {
 		Collection<List<File>> files = SameFilesEngine.analyse(folderHelper.getFiles());
 		log.info("Finish analysing");
 		StatHelper.show(files);		
-		//new FolderHelper("d:\\1\\").move(files);
+		
+		for (List<File> sameFiles : files) {
+			folderHelper.moveExceptFirst(sameFiles);
+		}		
 	}
 }
