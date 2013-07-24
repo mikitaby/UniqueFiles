@@ -1,4 +1,4 @@
-package model.filecomparer;
+package model.comparerengine.hash;
 
 import java.io.File;
 import java.io.FileInputStream;
