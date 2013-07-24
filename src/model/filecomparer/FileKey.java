@@ -1,4 +1,4 @@
-package model;
+package model.filecomparer;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -16,7 +16,7 @@ public class FileKey {
 	private final File file;
 	private byte[] hashSum;
 
-	public FileKey(File file) {
+	public FileKey(final File file) {
 		this.file = file;
 	}
 
@@ -66,11 +66,4 @@ public class FileKey {
 		}
 		return md.digest();
 	}
-
-	/*
-	 * private static String bytesToString(byte[] bytes) { StringBuilder sb =
-	 * new StringBuilder(); for (byte aByte : bytes) {
-	 * sb.append(Integer.toString((aByte & 0xff) + 0x100, 16).substring(1)); }
-	 * return sb.toString(); }
-	 */
 }
